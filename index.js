@@ -7,12 +7,6 @@ const getLastBlockNumber = () => web3.eth.getBlockNumber();
 
 const getBlockData = (blockNumber) => web3.eth.getBlock(blockNumber, true);
 
-const calculateAmountOfWeiInTransactions = (transactions) => {
-  return transactions.reduce((wei, currentTransaction) => {
-    return wei + parseInt(currentTransaction.value);
-  }, 0);
-}
-
 const calculateRelevantBlockNumbers = (numberOfTransactions, lastBlockNumber) => {
   const parsedLastBlockNumber = parseInt(lastBlockNumber);
   let relevantBlockNumbers = [];
@@ -22,45 +16,82 @@ const calculateRelevantBlockNumbers = (numberOfTransactions, lastBlockNumber) =>
   return relevantBlockNumbers;
 }
 
-const sumAllValues = (array) => {
-  return array.reduce((accumulator, currentValue) => {
-    return accumulator + currentValue;
-  }, 0)
-}
-
-const weiTransferredInBlocks = (blockNumbers) => {
-  const weiValues = [];
-  const arrayLength = blockNumbers.length;
-  for (let index = 0; index < arrayLength; index++) {
-    weiValues.push(weiTransferredInBlock(blockNumbers[index]));
+const aggregateData = (blocksData) => {
+  const accumulatorInitialValue = {
+    etherTransferred: 0,
+    addressesThatSentEther: [],
+    addressesThatReceivedEther: [],
   }
-  return Promise.all(weiValues);
+  return blocksData.reduce((accumulator, currentBlockData) => {
+    const etherTransferredInBlock = parseFloat(web3.utils.fromWei(currentBlockData.weiTransferred.toString(16)));
+    accumulator.etherTransferred = accumulator.etherTransferred + etherTransferredInBlock;
+    accumulator.addressesThatSentEther = accumulator.addressesThatSentEther.concat(currentBlockData.addressesThatSentEther);
+    accumulator.addressesThatReceivedEther = accumulator.addressesThatReceivedEther.concat(currentBlockData.addressesThatReceivedEther);
+    return accumulator;
+  }, accumulatorInitialValue);
 }
 
-const weiTransferredInBlock = (blockNumber) => {
+const collectBlockData = (transactions) => {
+  const accumulatorInitialValue = {
+    weiTransferred: 0,
+    addressesThatSentEther: [],
+    addressesThatReceivedEther: [],
+  }
+  return transactions.reduce((accumulator, currentTransaction) => {
+    accumulator.weiTransferred = accumulator.weiTransferred + parseInt(currentTransaction.value);
+    accumulator.addressesThatSentEther.push(currentTransaction.to);
+    accumulator.addressesThatReceivedEther.push(currentTransaction.from);
+    return accumulator;
+  }, accumulatorInitialValue);
+}
+
+const collectDataOnSingleBlock = (blockNumber) => {
   return getBlockData(blockNumber)
     .then(blockData => blockData.transactions)
-    .then(calculateAmountOfWeiInTransactions)
-    .then(wei => {
-      const ether = web3.utils.fromWei(wei.toString());
-      console.log(`${ether} ether transferred in block number ${blockNumber}`);
-      return wei;
-    });
+    .then(transactions => collectBlockData(transactions))
 }
 
-const etherTransferredInLastTransactions = (numberOfTransactions) => {
-  if (numberOfTransactions <= 0) throw new Error('The number of transactions must be positive.');
+const collectDataOnBlocks = (blockNumbers) => {
+  const blocksData = [];
+  const arrayLength = blockNumbers.length;
+  for (let index = 0; index < arrayLength; index++) {
+    blocksData.push(collectDataOnSingleBlock(blockNumbers[index]));
+  }
+  return Promise.all(blocksData);
+}
+
+const etherReportFromLastWrittenBlocks = (numberOfBlocks) => {
+  if (numberOfBlocks <= 0) throw new Error('The number of transactions must be positive.');
 
   getLastBlockNumber()
-    .then(lastBlockNumber => calculateRelevantBlockNumbers(numberOfTransactions, lastBlockNumber))
-    .then(blockNumbers => weiTransferredInBlocks(blockNumbers))
-    .then(weiValues => sumAllValues(weiValues))
-    .then(totalWei => {
-      const totalEther = web3.utils.fromWei(totalWei.toString());
-      console.log(`There was ${totalEther} ether transferred in the last ${numberOfTransactions} transactions.`);
-      return totalEther;
-    })
+    .then(lastBlockNumber => calculateRelevantBlockNumbers(numberOfBlocks, lastBlockNumber))
+    .then(blockNumbers => collectDataOnBlocks(blockNumbers))
+    .then(blocksData => aggregateData(blocksData))
+    .then(aggregatedData => createReport(numberOfBlocks, aggregatedData))
     .catch(error => console.log(error));
 }
 
-module.exports = etherTransferredInLastTransactions;
+const createReport = (numberOfBlocks, aggregatedData) => {
+  const { etherTransferred, addressesThatSentEther, addressesThatReceivedEther } = aggregatedData;
+  console.log(`/////////////////////////////////////////////////////////////////////////////`);
+  console.log(`|    There was ${etherTransferred} ether transferred in the last ${numberOfBlocks} blocks.               |`);
+  console.log(`|    There were ${JSON.stringify(addressesThatSentEther.length)} addresses that sent and received ether. |`);
+  console.log(`/////////////////////////////////////////////////////////////////////////////`);
+}
+
+const getAccountCode = (accountNumber) => {
+  web3.eth.getCode(accountNumber)
+    .then(code => console.log('the code is ' + code));
+}
+
+const getSampleTransaction = () => {
+  getLastBlockNumber()
+    .then(getBlockData)
+    .then(blockData => console.log('a transaction => ' + JSON.stringify(blockData.transactions[0])));
+}
+
+module.exports = {
+  getAccountCode,
+  getSampleTransaction,
+  etherReportFromLastWrittenBlocks,
+}
