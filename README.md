@@ -5,6 +5,7 @@ the amount of ether transferred in those blocks, the number of unique addresses 
 number of those addresses that were contract addresses.
 
 Installing
+----------
 
 Clone this git repository. Then cd into eth-query and install the node modules with
 ```
@@ -12,6 +13,7 @@ npm install
 ```
 
 Usage
+-----
 
 Open a node console and require eth-query.js in the top-most directory.
 ```
@@ -23,4 +25,12 @@ the last n blocks written to the ethereum blockchain.
 ```
 // returns details about the last 5 blocks written
 ethQuery(5)
+```
+
+Running Tests
+-------------
+
+The test suite can be run by typing
+```
+npm test
 ```
