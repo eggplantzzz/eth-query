@@ -21,4 +21,12 @@ const etherReportFromLastWrittenBlocks = (numberOfBlocks) => {
     .catch(error => console.log(error));
 }
 
-module.exports = etherReportFromLastWrittenBlocks;
+const getCode = (code) => {
+  web3.eth.getCode(code)
+    .then(code => console.log(code));
+}
+
+module.exports = {
+  etherReportFromLastWrittenBlocks,
+  getCode,
+}
