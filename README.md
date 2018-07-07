@@ -7,7 +7,7 @@ It require node v8.11.2 and npm 6.1.0.
 Installing
 ----------
 
-Clone this git repository. Then cd into eth-query and install the node modules with
+Clone this git repository. Then cd into the eth-query directory and install the node modules with
 ```
 npm install
 ```
@@ -20,7 +20,7 @@ Usage
 
 Require the eth-query.js file in the top-most directory.
 ```
-const ethQuery = require('eth-query');
+const ethQuery = require('./eth-query');
 ```
 
 This module exposes a function that takes a number *n* as an argument.  It then does two things: it logs a report to the console
