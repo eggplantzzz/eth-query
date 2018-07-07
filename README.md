@@ -14,7 +14,7 @@ npm install
 Usage
 -----
 
-Require eth-query.js in the top-most directory.
+Require the eth-query.js file in the top-most directory.
 ```
 const ethQuery = require('eth-query');
 ```
@@ -26,8 +26,9 @@ giving details about the last *n* blocks written to the ethereum blockchain.
 ethQuery(5)
 ```
 
-You may include an optional boolean as a second argument.  If `true` is passed as a second argument, the function
-will then return a Promise that resolves with an object with more detailed information regarding the last *n* blocks.
+You may also include an optional boolean as a second argument.  If `true` is passed as a second argument, the function
+will then return information about which of the transferring addresses were contract addresses.  This is a more
+costly operation and defaults to false if no second argument is passed.
 
 ```
 ethQuery(12, true)
@@ -39,11 +40,12 @@ ethQuery(12, true)
 The data object structure is as follows...
 ```
 {
-  etherTransferred: number of total ether transferred,
+  weiTransferred: string containing the toal amount of wei transferred,
+  etherTransferred: string containing the total amount of ether transferred,
   addressesThatSentEther: [ array of addresses that sent ether ],
   addressesThatReceivedEther: [ array of addresses that received ether ],
-  contractAddressesThatSentEther: [ array of contract addresses that sent ether ],
-  contractAddressesThatReceivedEther: [ array of contract addresses that received ether ]
+  contractAddressesThatSentEther: [ array of contract addresses that sent ether (only present when second argument is truthy) ],
+  contractAddressesThatReceivedEther: [ array of contract addresses that received ether (only present when second argument is truthy) ]
 }
 ```
 
