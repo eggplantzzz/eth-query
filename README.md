@@ -31,7 +31,7 @@ You may include an optional boolean as a second argument.  If `true` is passed a
 will then return a Promise that resolves with an object with more detailed information regarding the last *n* blocks.
 
 ```
-ethQuery(12)
+ethQuery(12, true)
   .then(data => {
     console.log(data);
   });
