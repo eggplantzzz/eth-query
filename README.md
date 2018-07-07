@@ -1,8 +1,7 @@
 # eth-query
 
-This is a tool for retrieving a report on the last n blocks written to the ethereum blockchain.  The report contains
-the amount of ether transferred in those blocks, the number of unique addresses sending and receiving ether and the
-number of those addresses that were contract addresses.
+This is a tool for retrieving a report on the last *n* blocks written to the ethereum blockchain.  The report contains information about
+the amount of ether transferred in those blocks as well as the addresses sending and receiving ether.
 
 Installing
 ----------
