@@ -1,6 +1,7 @@
 const { aggregateAllBlocksData } = require('../lib');
 const { web3Mock } = require('./web3Mock');
 const expect = require('chai').expect;
+const BigNumber = require('bignumber.js');
 
 describe('aggregateAllBlocksData(blocksData, web3)', () => {
   let mockBlocksData, mockAddressesThatSentEther, mockAddressesThatReceivedEther, expectedAmountOfEther,
@@ -18,17 +19,17 @@ describe('aggregateAllBlocksData(blocksData, web3)', () => {
     ]
     mockBlocksData = [
       {
-        weiTransferred: '666',
+        weiTransferred: new BigNumber(666),
         addressesThatSentEther: mockAddressesThatSentEther,
         addressesThatReceivedEther: mockAddressesThatReceivedEther,
       },
       {
-        weiTransferred: '999',
+        weiTransferred: new BigNumber(999),
         addressesThatSentEther: mockAddressesThatSentEther,
         addressesThatReceivedEther: mockAddressesThatReceivedEther,
       }
     ]
-    expectedAmountOfEther = 20;
+    expectedAmountOfEther = new BigNumber(1665);
     expectedAddressesThatSentEther = mockAddressesThatSentEther.concat(mockAddressesThatSentEther);
     expectedAddressesThatReceivedEther = mockAddressesThatReceivedEther.concat(mockAddressesThatReceivedEther);
   });
@@ -36,8 +37,8 @@ describe('aggregateAllBlocksData(blocksData, web3)', () => {
   it('takes an array of block data objects and returns a single object', () => {
     expect(typeof aggregateAllBlocksData(mockBlocksData, web3Mock)).to.eql('object');
   });
-  it('converts the wei values to ether and sums them', () => {
-    expect(aggregateAllBlocksData(mockBlocksData, web3Mock).etherTransferred).to.eql(expectedAmountOfEther);
+  it('sums all the wei values', () => {
+    expect(aggregateAllBlocksData(mockBlocksData, web3Mock).weiTransferred).to.eql(expectedAmountOfEther);
   });
   it('returns an array of all the addresses that sent ether', () => {
     expect(aggregateAllBlocksData(mockBlocksData, web3Mock).addressesThatSentEther).to.eql(expectedAddressesThatSentEther);
