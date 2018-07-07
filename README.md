@@ -2,6 +2,7 @@
 
 This is a tool for retrieving a report on the last *n* blocks written to the ethereum blockchain.  The report contains information about
 the amount of ether transferred in those blocks as well as the addresses sending and receiving ether.
+It require node v8.11.2 and npm 6.1.0.
 
 Installing
 ----------
@@ -22,11 +23,15 @@ Require the eth-query.js file in the top-most directory.
 const ethQuery = require('eth-query');
 ```
 
-This module exposes a function that takes a number *n* as an argument.  It then logs a report to the console
-giving details about the last *n* blocks written to the ethereum blockchain.
+This module exposes a function that takes a number *n* as an argument.  It then does two things: it logs a report to the console
+giving details about the last *n* blocks written to the ethereum blockchain and returns a Promise that
+resolves with a more detailed report.  See below for more details about the data.
 ```
 // returns details about the last 5 blocks written
 ethQuery(5)
+  .then(data => {
+    console.log(data);
+  });
 ```
 
 You may also include an optional boolean as a second argument.  If `true` is passed as a second argument, the function
@@ -34,9 +39,10 @@ will then return information about which of the transferring addresses were cont
 costly operation and defaults to false if no second argument is passed.
 
 ```
+// returns details about the last 12 blocks in addition to contract information about the addresses
 ethQuery(12, true)
   .then(data => {
-    console.log(data);
+    console.log(data.contractAddressesThatReceivedEther);
   });
 ```
 
