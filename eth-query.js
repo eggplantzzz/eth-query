@@ -8,25 +8,22 @@ const {
   createReport,
   filterDuplicateAddresses,
   determineAllContractAddresses,
+  validateInput,
 } = require('./lib');
 
-const etherReportFromLastWrittenBlocks = (numberOfBlocks) => {
-  if (numberOfBlocks <= 0) throw new Error('The number of transactions must be positive.');
-  calculateRelevantBlockNumbers(numberOfBlocks, web3)
+const etherReportFromLastWrittenBlocks = (numberOfBlocks, returnJson = false) => {
+  try {
+    validateInput(numberOfBlocks);
+  } catch (error) {
+    throw new Error(error);
+  }
+  return calculateRelevantBlockNumbers(numberOfBlocks, web3)
     .then(relevantBlockNumbers => collectDataOnBlocks(relevantBlockNumbers, web3))
     .then(blocksData => aggregateAllBlocksData(blocksData, web3))
     .then(filterDuplicateAddresses)
     .then(filteredAggregatedData => determineAllContractAddresses(filteredAggregatedData, web3))
-    .then(preparedData => createReport(numberOfBlocks, preparedData))
+    .then(preparedData => createReport(numberOfBlocks, preparedData, returnJson))
     .catch(error => console.log(error));
 }
 
-const getCode = (code) => {
-  web3.eth.getCode(code)
-    .then(code => console.log(code));
-}
-
-module.exports = {
-  etherReportFromLastWrittenBlocks,
-  getCode,
-}
+module.exports = etherReportFromLastWrittenBlocks;
