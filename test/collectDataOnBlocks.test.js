@@ -1,4 +1,5 @@
 const expect = require('chai').expect;
+const BigNumber = require('bignumber.js');
 const { collectDataOnBlocks } = require('../lib');
 const { web3Mock, web3MockThatReturnsNullAddresses } = require('./web3Mock');
 
@@ -7,7 +8,7 @@ describe('collectDataOnBlocks(blockNumbers, web3)', () => {
 
   beforeEach(() => {
     blockNumbers = [ 12345, 12344 ];
-    expectedAmountOfWeiTransferred = 13;
+    expectedAmountOfWeiTransferred = new BigNumber(13);
     expectedAddressesThatSentEther = [
       '0xcd2DDEc1150Ded7A28834169683A0DBc93a782c2',
       '0xC5D60DF8f90E5A2989bbF1e21A5350304Fcbe1F2',

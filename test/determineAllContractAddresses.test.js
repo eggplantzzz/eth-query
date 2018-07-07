@@ -2,7 +2,7 @@ const expect = require('chai').expect;
 const { web3Mock } = require('./web3Mock');
 const { determineAllContractAddresses } = require('../lib');
 
-describe('determineAllContractAddresses(filteredAggregatedBlocksData, web3)', () => {
+describe('determineAllContractAddresses(getContractAddresses, filteredAggregatedBlocksData, web3)', () => {
   let filteredAggregatedBlocksData;
   beforeEach(() => {
     filteredAggregatedBlocksData = {
@@ -18,38 +18,46 @@ describe('determineAllContractAddresses(filteredAggregatedBlocksData, web3)', ()
     }
   });
 
-  it('resolves a promise with an object', (done) => {
-    determineAllContractAddresses(filteredAggregatedBlocksData, web3Mock)
-      .then(result => {
-        expect(typeof result).to.eql('object');
-        done();
+  describe('when getContractAddresses is false', () => {
+    it('returns the filteredAggregatedBlocksData', () => {
+      expect(determineAllContractAddresses(false, filteredAggregatedBlocksData)).to.eql(filteredAggregatedBlocksData);
+    });
+  });
+
+  describe('when getContractAddresses is true', () => {
+    it('returns a promise that resolves a promise with an object', (done) => {
+      determineAllContractAddresses(true, filteredAggregatedBlocksData, web3Mock)
+        .then(result => {
+          expect(typeof result).to.eql('object');
+          done();
+        });
+    });
+
+    describe('the array containing the contract addresses that sent ether', () => {
+      let expectedContractAddressesThatSentEther, expectedContractAddressesThatReceivedEther;
+      beforeEach(() => {
+        expectedContractAddressesThatSentEther = [];
       });
-  });
+      it('contains the contract addresses that sent ether', (done) => {
+        determineAllContractAddresses(true, filteredAggregatedBlocksData, web3Mock)
+          .then(result => {
+            expect(result.contractAddressesThatSentEther).to.eql(expectedContractAddressesThatSentEther);
+            done();
+          });
+      });
+    });
 
-  describe('the array containing the contract addresses that sent ether', () => {
-    let expectedContractAddressesThatSentEther, expectedContractAddressesThatReceivedEther;
-    beforeEach(() => {
-      expectedContractAddressesThatSentEther = [];
-    });
-    it('contains the contract addresses that sent ether', (done) => {
-      determineAllContractAddresses(filteredAggregatedBlocksData, web3Mock)
-        .then(result => {
-          expect(result.contractAddressesThatSentEther).to.eql(expectedContractAddressesThatSentEther);
-          done();
-        });
-    });
-  });
-
-  describe('the array containing the contract addresses that received ether', () => {
-    beforeEach(() => {
-      expectedContractAddressesThatReceivedEther = [ '0x9a2d163aB40F88C625Fd475e807Bbc3556566f80' ];
-    });
-    it('contains the contract addresses that received ether', (done) => {
-      determineAllContractAddresses(filteredAggregatedBlocksData, web3Mock)
-        .then(result => {
-          expect(result.contractAddressesThatReceivedEther).to.eql(expectedContractAddressesThatReceivedEther);
-          done();
-        });
+    describe('the array containing the contract addresses that received ether', () => {
+      beforeEach(() => {
+        expectedContractAddressesThatReceivedEther = [ '0x9a2d163aB40F88C625Fd475e807Bbc3556566f80' ];
+      });
+      it('contains the contract addresses that received ether', (done) => {
+        determineAllContractAddresses(true, filteredAggregatedBlocksData, web3Mock)
+          .then(result => {
+            expect(result.contractAddressesThatReceivedEther).to.eql(expectedContractAddressesThatReceivedEther);
+            done();
+          });
+      });
     });
   });
 });
