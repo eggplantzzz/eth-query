@@ -5,13 +5,14 @@ const {
   aggregateAllBlocksData,
   calculateRelevantBlockNumbers,
   collectDataOnBlocks,
-  createReport,
+  convertWeiToEther,
+  generateReport,
   filterDuplicateAddresses,
   determineAllContractAddresses,
   validateInput,
 } = require('./lib');
 
-const etherReportFromLastWrittenBlocks = (numberOfBlocks, returnJson = false) => {
+module.exports = (numberOfBlocks, getContractAddresses = false) => {
   try {
     validateInput(numberOfBlocks);
   } catch (error) {
@@ -20,10 +21,9 @@ const etherReportFromLastWrittenBlocks = (numberOfBlocks, returnJson = false) =>
   return calculateRelevantBlockNumbers(numberOfBlocks, web3)
     .then(relevantBlockNumbers => collectDataOnBlocks(relevantBlockNumbers, web3))
     .then(blocksData => aggregateAllBlocksData(blocksData, web3))
+    .then(aggregatedBlocksData => convertWeiToEther(aggregatedBlocksData, web3))
     .then(filterDuplicateAddresses)
-    .then(filteredAggregatedData => determineAllContractAddresses(filteredAggregatedData, web3))
-    .then(preparedData => createReport(numberOfBlocks, preparedData, returnJson))
+    .then(filteredAggregatedData => determineAllContractAddresses(getContractAddresses, filteredAggregatedData, web3))
+    .then(preparedData => generateReport(numberOfBlocks, preparedData))
     .catch(error => console.log(error));
 }
-
-module.exports = etherReportFromLastWrittenBlocks;
