@@ -11,6 +11,9 @@ Clone this git repository. Then cd into eth-query and install the node modules w
 npm install
 ```
 
+Create an [Infura](https://infura.io/) account and obtain an api key.  Duplicate the config.example.js file and remove
+'.example' from the file name.  Replace 'secretkey' with your api key.
+
 Usage
 -----
 
