@@ -50,6 +50,11 @@ module.exports = {
               value: 8,
               to: '0x7A316433898Ff6eD72478bA946083d0Bd8E340bE',
               from: null,
+            },
+            {
+              value: 0,
+              to: null,
+              from: '0xcd2DDEc1150Ded7A2879872123870DBc93a782c2',
             }
           ]
         });
